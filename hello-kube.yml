@@ -43,4 +43,4 @@ spec:
     ports:
         - port: 80
           targetPort: 8080
-    loadBalancerIP: 172.22.22.17
+    loadBalancerIP: 172.22.22.200
