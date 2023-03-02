@@ -1,7 +1,7 @@
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: TanzuKubernetesCluster
 metadata:
-  name: tkc-cl1
+  name: tkc-cl2
   namespace: vg
 spec:
   topology:
