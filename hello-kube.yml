@@ -1,0 +1,45 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rolebinding-def-svc-acc-psp
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: psp:vmware-system-privileged
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-kube-deployment
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: hello-kube
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: hello-kube
+    spec:
+      containers:
+      - name: hello-kube
+        image: paulbouwer/hello-kubernetes:1.10.0
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: loadbalanced-hello-kube-service
+    namespace: default
+spec:
+    type: LoadBalancer
+    selector:
+        app: hello-kube
+    ports:
+        - port: 80
+          targetPort: 8080
