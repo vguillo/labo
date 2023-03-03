@@ -2,7 +2,7 @@ apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: TanzuKubernetesCluster
 metadata:
   name: tkc-cl03
-  namespace: vg
+  namespace: jenkins
 spec:
   topology:
     controlPlane:
