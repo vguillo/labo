@@ -1,8 +1,7 @@
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: TanzuKubernetesCluster
 metadata:
-  name: tkc-cl2
-  namespace: vg
+  name: tkc-cl01
 spec:
   topology:
     controlPlane:
@@ -45,4 +44,4 @@ spec:
         cidrBlocks: ["198.53.100.0/16"]
       pods:
         cidrBlocks: ["192.0.5.0/16"]
-      serviceDomain: tkc-cl1.vmwlab.int
+      serviceDomain: tkc-cl01.vmwlab.int
