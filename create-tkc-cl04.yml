@@ -1,0 +1,48 @@
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: TanzuKubernetesCluster
+metadata:
+  name: tkc-cl04
+  namespace: vg
+spec:
+  topology:
+    controlPlane:
+      replicas: 3
+      vmClass: best-effort-small
+      storageClass: cluster-zone-storagepolicy
+      tkr:
+        reference:
+          name: v1.23.8---vmware.3-tkg.1
+    nodePools:
+    - name: workers-pool-1
+      replicas: 1
+      failureDomain: zone1
+      vmClass: best-effort-small
+      storageClass: cluster-zone-storagepolicy
+      tkr:
+        reference:
+          name: v1.23.8---vmware.3-tkg.1
+    - name: workers-pool-2
+      replicas: 1
+      failureDomain: zone2
+      vmClass: best-effort-small
+      storageClass: cluster-zone-storagepolicy
+      tkr:
+        reference:
+          name: v1.23.8---vmware.3-tkg.1
+    - name: workers-pool-3
+      replicas: 1
+      failureDomain: zone3
+      vmClass: best-effort-small
+      storageClass: cluster-zone-storagepolicy
+      tkr:
+        reference:
+          name: v1.23.8---vmware.3-tkg.1
+  settings:
+    network:
+      cni:
+        name: antrea
+      services:
+        cidrBlocks: ["198.53.100.0/16"]
+      pods:
+        cidrBlocks: ["192.0.5.0/16"]
+      serviceDomain: tkc-cl04.vmwlab.int
