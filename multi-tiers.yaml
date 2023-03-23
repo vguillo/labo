@@ -1,0 +1,113 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rolebinding-def-svc-acc-psp
+  namespace: multi-tiers
+roleRef:
+  kind: ClusterRole
+  name: psp:vmware-system-privileged
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: multi-tiers
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: tanzu-storage-policy
+  resources:
+    requests:
+        storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-tier-db
+  namespace: multi-tiers
+spec:
+  selector:
+    matchLabels:
+      appdb: db-deploy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        appdb: db-deploy
+    spec:
+      containers:
+      - name: multi-tier-db
+        image: library/mongo:3.3
+        env:
+        - name: MONGODB_DATABASE
+          value: testdata
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongodb-volume
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-volume
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-tier-web
+  namespace: multi-tiers
+spec:
+  selector:
+    matchLabels:
+      app: web-deploy
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: web-deploy
+    spec:
+      containers:
+      - name: web-app
+        image: teamcloudyuga/rsvpapp:latest
+        env:
+        - name: MONGODB_HOST
+          value: multi-tier-mongodb
+        ports:
+        - containerPort: 5000
+          name: web-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multi-tier-web
+  namespace: multi-tiers
+  labels:
+    app: web-svc
+spec:
+  type: LoadBalancer
+  ports:
+  - name: tcp-31082-5000
+    nodePort: 31082
+    port: 5000
+    protocol: TCP
+  selector:
+    app: web-deploy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multi-tier-mongodb
+  namespace: multi-tiers
+  labels:
+    app: db-svc
+spec:
+  ports:
+  - port: 27017
+    protocol: TCP
+  selector:
+    appdb: db-deploy
